@@ -1,0 +1,189 @@
+//file:noinspection GrMethodMayBeStatic
+import static org.jetbrains.gradle.ext.ActionDelegationConfig.TestRunner
+
+plugins {
+	id 'maven-publish'
+
+	id 'org.jetbrains.kotlin.jvm'
+
+	id 'fabric-loom'
+
+	id "org.jetbrains.gradle.plugin.idea-ext"
+	id 'com.diffplug.spotless'
+	id 'net.kyori.blossom'
+}
+
+archivesBaseName = project.archives_base_name
+version = project.mod_version
+group = project.maven_group
+
+ext {
+	new File("./lib").mkdir()
+}
+
+repositories {
+	flatDir {
+		dirs "./lib", "./.gradle/loom-cache/remapped_mods"
+	}
+
+	maven { url 'https://jitpack.io' }
+	maven { url "https://maven.terraformersmc.com" }
+	mavenCentral()
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${minecraft_version()}"
+	mappings "net.fabricmc:yarn:${minecraft_version()}+${yarn_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${loader_version}"
+
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}+${minecraft_version_short()}"
+	modImplementation "net.fabricmc:fabric-language-kotlin:${fabric_kotlin_version}+kotlin.${kotlin_version}"
+
+	// https://fabricmc.net/wiki/documentation:libraries
+	modImplementation "com.terraformersmc:modmenu:${modmenu_version}"
+
+	modRuntime files("./lib")
+}
+
+task copyLocal(type: Copy) {
+	from("./lib")
+	into("./run/mods")
+	include("*.jar")
+}
+processResources.dependsOn copyLocal
+
+loom {
+	accessWidenerPath = file("src/main/resources/${archives_base_name}.accesswidener")
+}
+
+compileJava {
+	options.encoding = "UTF-8"
+	sourceCompatibility = targetCompatibility = project.java_version
+}
+
+compileKotlin {
+	kotlinOptions {
+		jvmTarget = project.java_version
+	}
+	sourceCompatibility = targetCompatibility = project.java_version
+}
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(project.java_version)
+	}
+	withSourcesJar()
+}
+
+jar {
+	from("LICENSE") {
+		rename { "${it}_${project.archivesBaseName}" }
+	}
+}
+
+spotless {
+	ratchetFrom "origin/${branch}"
+
+	java {
+		target 'src/*/java/**/*.java'
+
+		importOrder()
+		removeUnusedImports()
+		googleJavaFormat()
+
+		licenseHeader "/* ${expand_license(license_header)} */\n\n"
+	}
+
+	groovyGradle {
+		target '*.gradle'
+		
+		greclipse()
+	}
+
+	kotlin {
+		ktlint(ktlint_version)
+
+		licenseHeader "/* ${expand_license(license_header)} */\n\n"
+	}
+
+	json {
+		target 'src/**/*.json'
+
+		simple()
+	}
+
+	format 'misc', {
+		target '*.md', '.gitignore'
+
+		trimTrailingWhitespace()
+		indentWithTabs()
+		endWithNewline()
+	}
+}
+compileJava.dependsOn spotlessApply
+compileKotlin.dependsOn spotlessApply
+
+blossom {
+	replaceToken('$[name]', project.property('mod_name'))
+	replaceToken('$[author]', project.property('mod_author'))
+	replaceToken('$[version]', project.property('mod_version'))
+
+	replaceToken('$[id]', project.property('archives_base_name'))
+	replaceToken('$[group]', project.property('maven_group'))
+
+	replaceToken('$[java]', project.property('java_version'))
+	replaceToken('$[kotlin]', project.property('kotlin_version'))
+
+	replaceToken('$[minecraft]', minecraft_version())
+	replaceToken('$[yarn]', project.property('yarn_mappings'))
+	replaceToken('$[loader]', project.property('loader_version'))
+	replaceToken('$[loom]', project.property('loom_version'))
+	replaceToken('$[fabric_version]', project.property('fabric_version'))
+}
+
+processResources {
+	filesMatching("*.json") {
+		expand([
+			"id"       : project.archives_base_name,
+			"name"     : project.mod_name,
+			"version"  : project.version,
+			"author"   : project.mod_author,
+			"desc"     : project.mod_desc,
+			"site"     : project.mod_site,
+			"src"      : project.mod_src,
+			"minecraft": minecraft_version(),
+			"fabric"   : project.fabric_version,
+			"loader"   : project.loader_version,
+			"java"     : project.java_version,
+			"adapter"  : project.fabric_kotlin_version,
+			"group"    : project.maven_group,
+			"license"  : project.license_type,
+		])
+	}
+}
+
+idea.project.settings {
+	delegateActions {
+		delegateBuildRunToGradle = false
+		testRunner = TestRunner.PLATFORM
+	}
+
+	taskTriggers {
+		beforeSync project.getTasksByName("genSources", true)
+	}
+}
+
+String minecraft_version() {
+	return "$minecraft_major.$minecraft_minor.$minecraft_patch"
+}
+
+String minecraft_version_short() {
+	return "$minecraft_major.$minecraft_minor"
+}
+
+String expand_license(String old) {
+	old = old.replace('\$DEVELOPER', mod_author)
+	old = old.replace('\$LICENSE', license_type.toUpperCase())
+
+	return old
+}

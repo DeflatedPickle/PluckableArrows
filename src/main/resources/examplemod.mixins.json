@@ -1,0 +1,8 @@
+{
+    "mixins": ["ExampleMixin"],
+    "minVersion": "0.8",
+    "package": "${group}.${id}.mixin",
+    "injectors": {"defaultRequire": 1},
+    "compatibilityLevel": "JAVA_${java}",
+    "required": true
+}

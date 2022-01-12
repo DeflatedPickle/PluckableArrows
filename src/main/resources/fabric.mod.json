@@ -1,0 +1,29 @@
+{
+    "schemaVersion": 1,
+    "depends": {
+        "minecraft": "${minecraft}",
+        "java": ">=${java}",
+        "fabric": ">=${fabric}",
+        "fabricloader": ">=${loader}",
+        "fabric-language-kotlin": ">=${adapter}"
+    },
+    "accessWidener": "${id}.accesswidener",
+    "icon": "assets/${id}/icon.png",
+    "description": "${desc}",
+    "version": "${version}",
+    "license": "${license}",
+    "environment": "*",
+    "mixins": ["${id}.mixins.json"],
+    "contact": {
+        "sources": "${src}",
+        "issues": "${src}/issues",
+        "homepage": "${site}"
+    },
+    "name": "${name}",
+    "entrypoints": {"main": [{
+        "adapter": "kotlin",
+        "value": "${group}.${id}.${name}"
+    }]},
+    "id": "${id}",
+    "authors": ["${author}"]
+}
