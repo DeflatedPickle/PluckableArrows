@@ -3,6 +3,7 @@
 package com.deflatedpickle.pluckablearrows.mixin;
 
 import java.util.stream.IntStream;
+import net.minecraft.block.RedstoneOreBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
@@ -11,9 +12,13 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -33,13 +38,42 @@ public abstract class MixinLivingEntity extends Entity {
   @Shadow
   public abstract void setStuckArrowCount(int stuckArrowCount);
 
+  @Shadow
+  @Nullable
+  protected abstract SoundEvent getHurtSound(DamageSource source);
+
+  @Shadow
+  protected abstract float getSoundVolume();
+
+  @Shadow
+  public abstract float getSoundPitch();
+
+  @Shadow
+  public abstract boolean damage(DamageSource source, float amount);
+
   @Override
   public ActionResult interact(PlayerEntity player, Hand hand) {
     super.interact(player, hand);
 
-    if (!world.isClient && getStuckArrowCount() - 1 >= 0 && !player.isCreative()) {
-      player.giveItemStack(new ItemStack(Items.ARROW));
-      setStuckArrowCount(getStuckArrowCount() - 1);
+    if (getStuckArrowCount() - 1 >= 0 && !player.isCreative()) {
+      if (!world.isClient) {
+        player.giveItemStack(new ItemStack(Items.ARROW));
+        setStuckArrowCount(getStuckArrowCount() - 1);
+
+        damage(DamageSource.player(player), 1f);
+      }
+
+      player.world.playSound(
+          getX(),
+          getY(),
+          getZ(),
+          SoundEvents.BLOCK_WET_GRASS_STEP,
+          SoundCategory.PLAYERS,
+          1.0f,
+          1.0f,
+          false);
+
+      RedstoneOreBlock.spawnParticles(player.world, getBlockPos());
 
       return ActionResult.SUCCESS;
     } else {

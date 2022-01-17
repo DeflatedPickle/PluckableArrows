@@ -5,3 +5,5 @@ accessible    field    net/minecraft/client/model/ModelPart    children    Ljava
 
 accessible    method    net/minecraft/client/render/entity/model/AnimalModel    getHeadParts    ()Ljava/lang/Iterable;
 accessible    method    net/minecraft/client/render/entity/model/AnimalModel    getBodyParts    ()Ljava/lang/Iterable;
+
+accessible    method    net/minecraft/block/RedstoneOreBlock    spawnParticles    (Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V
