@@ -34,14 +34,14 @@ abstract class StuckObjectsFeatureRenderer<T : LivingEntity, M : EntityModel<T>>
     override fun render(
         matrixStack: MatrixStack,
         vertexConsumerProvider: VertexConsumerProvider,
-        i: Int,
+        light: Int,
         livingEntity: T,
-        f: Float,
-        g: Float,
-        h: Float,
-        j: Float,
-        k: Float,
-        l: Float
+        limbAngle: Float,
+        limbDistance: Float,
+        tickDelta: Float,
+        animationProgress: Float,
+        headYaw: Float,
+        headPitch: Float
     ) {
         val random = Random((livingEntity as Entity).id.toLong())
 
@@ -53,27 +53,28 @@ abstract class StuckObjectsFeatureRenderer<T : LivingEntity, M : EntityModel<T>>
             if (partsList.isNotEmpty()) {
                 val modelPart = partsList.random(random.asKotlinRandom())
                 val cuboid = modelPart.getRandomCuboid(random)
+
                 modelPart.rotate(matrixStack)
 
-                val o = random.nextFloat()
-                val p = random.nextFloat()
-                val q = random.nextFloat()
+                val randX = random.nextFloat()
+                val randY = random.nextFloat()
+                val randZ = random.nextFloat()
 
-                val r = MathHelper.lerp(o, cuboid.minX, cuboid.maxX) / 16.0f
-                val s = MathHelper.lerp(p, cuboid.minY, cuboid.maxY) / 16.0f
-                val t = MathHelper.lerp(q, cuboid.minZ, cuboid.maxZ) / 16.0f
+                val x = MathHelper.lerp(randX, cuboid.minX, cuboid.maxX) / 16.0f
+                val y = MathHelper.lerp(randY, cuboid.minY, cuboid.maxY) / 16.0f
+                val z = MathHelper.lerp(randZ, cuboid.minZ, cuboid.maxZ) / 16.0f
 
-                matrixStack.translate(r.toDouble(), s.toDouble(), t.toDouble())
+                matrixStack.translate(x.toDouble(), y.toDouble(), z.toDouble())
 
                 renderObject(
                     matrixStack,
                     vertexConsumerProvider,
-                    i,
+                    light,
                     livingEntity as Entity,
-                    -1.0f * (o * 2.0f - 1.0f),
-                    -1.0f * (p * 2.0f - 1.0f),
-                    -1.0f * (q * 2.0f - 1.0f),
-                    h
+                    -1.0f * (randX * 2.0f - 1.0f),
+                    -1.0f * (randY * 2.0f - 1.0f),
+                    -1.0f * (randZ * 2.0f - 1.0f),
+                    tickDelta
                 )
             }
 

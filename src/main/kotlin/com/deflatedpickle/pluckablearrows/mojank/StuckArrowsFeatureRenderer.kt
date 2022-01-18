@@ -17,6 +17,10 @@ class StuckArrowsFeatureRenderer<T : LivingEntity, M : EntityModel<T>>(
     context: EntityRendererFactory.Context,
     entityRenderer: LivingEntityRenderer<T, M>
 ) : StuckObjectsFeatureRenderer<T, M>(entityRenderer) {
+    companion object {
+        const val multiplier = 57.2957763671875
+    }
+
     private val dispatcher = context.renderDispatcher
 
     override fun getObjectCount(entity: T) = (entity as LivingEntity).stuckArrowCount
@@ -33,11 +37,12 @@ class StuckArrowsFeatureRenderer<T : LivingEntity, M : EntityModel<T>>(
     ) {
         val f = MathHelper.sqrt(directionX * directionX + directionZ * directionZ)
 
-        val arrowEntity = ArrowEntity(entity.world, entity.x, entity.y, entity.z)
-        arrowEntity.yaw = (atan2(directionX.toDouble(), directionZ.toDouble()) * 57.2957763671875).toFloat()
-        arrowEntity.pitch = (atan2(directionY.toDouble(), f.toDouble()) * 57.2957763671875).toFloat()
-        arrowEntity.prevYaw = arrowEntity.yaw
-        arrowEntity.prevPitch = arrowEntity.pitch
+        val arrowEntity = ArrowEntity(entity.world, entity.x, entity.y, entity.z).apply {
+            yaw = (atan2(directionX.toDouble(), directionZ.toDouble()) * multiplier).toFloat()
+            pitch = (atan2(directionY.toDouble(), f.toDouble()) * multiplier).toFloat()
+            prevYaw = this.yaw
+            prevPitch = this.pitch
+        }
 
         dispatcher.render(arrowEntity, 0.0, 0.0, 0.0, 0.0f, tickDelta, matrices, vertexConsumers, light)
     }

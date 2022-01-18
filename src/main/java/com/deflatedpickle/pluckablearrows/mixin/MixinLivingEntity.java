@@ -23,6 +23,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @SuppressWarnings({"UnusedMixin", "unused"})
@@ -84,11 +85,19 @@ public abstract class MixinLivingEntity extends Entity {
   @Inject(method = "drop", at = @At("TAIL"))
   public void dropArrows(DamageSource source, CallbackInfo ci) {
     if (!world.isClient) {
-      IntStream.rangeClosed(0, getStuckArrowCount())
+      IntStream.rangeClosed(0, random.nextInt(getStuckArrowCount() + 1))
           .forEach(
               i ->
                   world.spawnEntity(
                       new ItemEntity(world, getX(), getY(), getZ(), new ItemStack(Items.ARROW))));
     }
   }
+
+  @Redirect(
+      method = "tick",
+      at =
+          @At(
+              value = "INVOKE",
+              target = "Lnet/minecraft/entity/LivingEntity;setStuckArrowCount(I)V"))
+  public void tickSetStuckArrowCount(LivingEntity instance, int stuckArrowCount) {}
 }
