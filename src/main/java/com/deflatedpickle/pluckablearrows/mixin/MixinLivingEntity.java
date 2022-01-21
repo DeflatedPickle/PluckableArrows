@@ -84,7 +84,7 @@ public abstract class MixinLivingEntity extends Entity {
 
   @Inject(method = "drop", at = @At("TAIL"))
   public void dropArrows(DamageSource source, CallbackInfo ci) {
-    if (!world.isClient) {
+    if (!world.isClient && getStuckArrowCount() > 0) {
       IntStream.rangeClosed(0, random.nextInt(getStuckArrowCount() + 1))
           .forEach(
               i ->
