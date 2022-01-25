@@ -13,12 +13,10 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -38,16 +36,6 @@ public abstract class MixinLivingEntity extends Entity {
 
   @Shadow
   public abstract void setStuckArrowCount(int stuckArrowCount);
-
-  @Shadow
-  @Nullable
-  protected abstract SoundEvent getHurtSound(DamageSource source);
-
-  @Shadow
-  protected abstract float getSoundVolume();
-
-  @Shadow
-  public abstract float getSoundPitch();
 
   @Shadow
   public abstract boolean damage(DamageSource source, float amount);

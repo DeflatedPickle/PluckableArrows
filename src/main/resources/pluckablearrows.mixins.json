@@ -1,5 +1,6 @@
 {
     "mixins": [
+        "MixinEntityModel",
         "MixinCompositeEntityModel",
         "MixinSinglePartEntityModel",
         "MixinAnimalModel",
