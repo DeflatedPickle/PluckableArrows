@@ -43,12 +43,15 @@ abstract class StuckObjectsFeatureRenderer<T : LivingEntity, M : EntityModel<T>>
         headYaw: Float,
         headPitch: Float
     ) {
+        val model = contextModel
+        if (model !is HasPieces) return
+
         val random = Random((livingEntity as Entity).id.toLong())
 
         for (n in 0 until getObjectCount(livingEntity)) {
             matrixStack.push()
 
-            val partsList = recurseModelPart((contextModel as HasPieces).getPieces(), mutableListOf())
+            val partsList = recurseModelPart(model.getPieces(), mutableListOf())
 
             if (partsList.isNotEmpty()) {
                 val modelPart = partsList.random(random.asKotlinRandom())

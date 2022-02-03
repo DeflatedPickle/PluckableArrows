@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @SuppressWarnings({"unused", "UnusedMixin"})
 @Mixin(EntityModel.class)
-public class MixinEntityModel implements HasPieces {
+public abstract class MixinEntityModel implements HasPieces {
   @NotNull
   @Override
   public List<ModelPart> getPieces() {
