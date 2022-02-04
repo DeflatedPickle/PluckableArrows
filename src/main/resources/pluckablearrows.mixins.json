@@ -5,7 +5,11 @@
         "MixinSinglePartEntityModel",
         "MixinAnimalModel",
         "MixinLivingEntity",
-        "MixinLivingEntityRenderer"
+        "MixinLivingEntityRenderer",
+        "MixinItem",
+        "MixinServerPlayNetworkHandler",
+        "MixinMinecraftClient",
+        "MixinPlayerEntityRenderer"
     ],
     "minVersion": "0.8",
     "package": "${group}.${id}.mixin",

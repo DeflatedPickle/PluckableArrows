@@ -2,8 +2,8 @@
 
 package com.deflatedpickle.pluckablearrows.mixin;
 
+import com.deflatedpickle.pluckablearrows.PluckableArrows;
 import java.util.stream.IntStream;
-import net.minecraft.block.RedstoneOreBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
@@ -12,8 +12,6 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
@@ -44,26 +42,7 @@ public abstract class MixinLivingEntity extends Entity {
   public ActionResult interact(PlayerEntity player, Hand hand) {
     super.interact(player, hand);
 
-    if (getStuckArrowCount() - 1 >= 0 && !player.isCreative()) {
-      if (!world.isClient) {
-        player.giveItemStack(new ItemStack(Items.ARROW));
-        setStuckArrowCount(getStuckArrowCount() - 1);
-
-        damage(DamageSource.player(player), 1f);
-      }
-
-      player.world.playSound(
-          getX(),
-          getY(),
-          getZ(),
-          SoundEvents.BLOCK_WET_GRASS_STEP,
-          SoundCategory.PLAYERS,
-          1.0f,
-          1.0f,
-          false);
-
-      RedstoneOreBlock.spawnParticles(player.world, getBlockPos());
-
+    if (PluckableArrows.INSTANCE.removeArrow((LivingEntity) (Object) this, player)) {
       return ActionResult.SUCCESS;
     } else {
       return ActionResult.PASS;
