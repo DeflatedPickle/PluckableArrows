@@ -5,6 +5,7 @@ package com.deflatedpickle.pluckablearrows.mixin;
 import com.deflatedpickle.pluckablearrows.mojank.StuckArrowsFeatureRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
+import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.entity.LivingEntity;
@@ -23,6 +24,8 @@ public abstract class MixinLivingEntityRenderer {
   @Inject(method = "<init>", at = @At("TAIL"))
   public void init(
       EntityRendererFactory.Context ctx, EntityModel model, float shadowRadius, CallbackInfo ci) {
+    if ((Object) this instanceof PlayerEntityRenderer) return;
+
     addFeature(
         new StuckArrowsFeatureRenderer<>(
             ctx, (LivingEntityRenderer<LivingEntity, EntityModel<LivingEntity>>) (Object) this));
