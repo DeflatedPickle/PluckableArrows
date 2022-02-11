@@ -9,7 +9,8 @@
         "MixinItem",
         "MixinServerPlayNetworkHandler",
         "MixinMinecraftClient",
-        "MixinPlayerEntityRenderer"
+        "MixinPlayerEntityRenderer",
+        "MixinEntity"
     ],
     "minVersion": "0.8",
     "package": "${group}.${id}.mixin",

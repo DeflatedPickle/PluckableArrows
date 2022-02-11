@@ -27,8 +27,6 @@ public class MixinItem {
     if (stack.isEmpty() && user.isSneaking()) {
       if (PluckableArrows.INSTANCE.removeArrow(user, (PlayerEntity) user)) {
         cir.setReturnValue(TypedActionResult.success(stack));
-      } else {
-        cir.setReturnValue(TypedActionResult.pass(stack));
       }
     }
   }

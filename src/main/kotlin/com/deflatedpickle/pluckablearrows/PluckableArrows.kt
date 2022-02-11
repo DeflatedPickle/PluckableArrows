@@ -27,7 +27,10 @@ object PluckableArrows : ModInitializer {
     }
 
     fun removeArrow(entity: LivingEntity, player: PlayerEntity): Boolean =
-        if (player.getStackInHand(player.activeHand).isEmpty() && entity.stuckArrowCount - 1 >= 0 && !player.isCreative) {
+        if (
+            player.getStackInHand(player.activeHand).isEmpty &&
+            entity.stuckArrowCount - 1 >= 0
+        ) {
             if (!entity.world.isClient) {
                 player.giveItemStack(ItemStack(Items.ARROW))
                 entity.stuckArrowCount -= 1
