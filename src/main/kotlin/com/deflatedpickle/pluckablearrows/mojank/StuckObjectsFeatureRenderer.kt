@@ -14,8 +14,8 @@ import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.math.MathHelper
-import java.util.Random
-import kotlin.random.asKotlinRandom
+import net.minecraft.util.random.RandomGenerator
+import kotlin.random.Random
 
 abstract class StuckObjectsFeatureRenderer<T : LivingEntity, M : EntityModel<T>>(entityRenderer: LivingEntityRenderer<T, M>) :
     FeatureRenderer<T, M>(entityRenderer) {
@@ -46,7 +46,7 @@ abstract class StuckObjectsFeatureRenderer<T : LivingEntity, M : EntityModel<T>>
         val model = contextModel
         if (model !is HasPieces) return
 
-        val random = Random((livingEntity as Entity).id.toLong())
+        val random = RandomGenerator.createLegacy(livingEntity.id.toLong())
 
         for (n in 0 until getObjectCount(livingEntity)) {
             matrixStack.push()
@@ -54,7 +54,7 @@ abstract class StuckObjectsFeatureRenderer<T : LivingEntity, M : EntityModel<T>>
             val partsList = recurseModelPart(model.getPieces(), mutableListOf())
 
             if (partsList.isNotEmpty()) {
-                val modelPart = partsList.random(random.asKotlinRandom())
+                val modelPart = partsList.random(Random(livingEntity.id.toLong()))
                 val cuboid = modelPart.getRandomCuboid(random)
 
                 modelPart.rotate(matrixStack)
