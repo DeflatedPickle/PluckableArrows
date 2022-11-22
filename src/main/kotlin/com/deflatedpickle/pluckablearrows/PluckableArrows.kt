@@ -4,7 +4,6 @@
 
 package com.deflatedpickle.pluckablearrows
 
-import net.fabricmc.api.ModInitializer
 import net.minecraft.block.RedstoneOreBlock
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.damage.DamageSource
@@ -13,6 +12,8 @@ import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
+import org.quiltmc.loader.api.ModContainer
+import org.quiltmc.qsl.base.api.entrypoint.ModInitializer
 
 @Suppress("UNUSED")
 object PluckableArrows : ModInitializer {
@@ -22,7 +23,7 @@ object PluckableArrows : ModInitializer {
     private const val AUTHOR = "$[author]"
     private const val VERSION = "$[version]"
 
-    override fun onInitialize() {
+    override fun onInitialize(mod: ModContainer) {
         println(listOf(MOD_ID, NAME, GROUP, AUTHOR, VERSION))
     }
 

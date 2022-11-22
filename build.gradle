@@ -1,4 +1,6 @@
 //file:noinspection GrMethodMayBeStatic
+//file:noinspection GradlePackageVersionRange
+
 import static org.jetbrains.gradle.ext.ActionDelegationConfig.TestRunner
 
 plugins {
@@ -6,19 +8,20 @@ plugins {
 
 	id 'org.jetbrains.kotlin.jvm'
 
-	id 'fabric-loom'
-
 	id "org.jetbrains.gradle.plugin.idea-ext"
 	id 'com.diffplug.spotless'
 	id 'net.kyori.blossom'
+
+	alias(libs.plugins.quilt.loom)
 }
 
 archivesBaseName = project.archives_base_name
-version = project.mod_version
+version = "${project.mod_version}+${libs.versions.minecraft.get()}"
 group = project.maven_group
 
 ext {
-	new File("./lib").mkdir()
+	local = new File("./lib")
+	local.mkdir()
 }
 
 repositories {
@@ -27,22 +30,26 @@ repositories {
 	}
 
 	maven { url 'https://jitpack.io' }
-	maven { url "https://maven.terraformersmc.com" }
+
 	mavenCentral()
 }
 
 dependencies {
-	minecraft "com.mojang:minecraft:${minecraft_version()}"
-	mappings "net.fabricmc:yarn:${minecraft_version()}+${yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${loader_version}"
+	minecraft libs.minecraft
 
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}+${minecraft_version_short()}"
-	modImplementation "net.fabricmc:fabric-language-kotlin:${fabric_kotlin_version}+kotlin.${kotlin_version}"
+	mappings loom.layered {
+		addLayer quiltMappings.mappings("org.quiltmc:quilt-mappings:${libs.versions.quilt.mappings.get()}:v2")
+	}
+	modImplementation libs.quilt.loader
+	modImplementation libs.quilted.fabric.api
 
-	// https://fabricmc.net/wiki/documentation:libraries
-	modImplementation "com.terraformersmc:modmenu:${modmenu_version}"
+	modImplementation("net.fabricmc:fabric-language-kotlin:${libs.versions.fabric.language.kotlin.get()}+kotlin.${kotlin_version}") {
+		exclude(group: "net.fabricmc")
+	}
 
-	modRuntime files("./lib")
+	if (!local.length()) {
+		modRuntimeOnly files("./lib")
+	}
 }
 
 task copyLocal(type: Copy) {
@@ -96,7 +103,7 @@ spotless {
 
 	groovyGradle {
 		target '*.gradle'
-		
+
 		greclipse()
 	}
 
@@ -134,11 +141,11 @@ blossom {
 	replaceToken('$[java]', project.property('java_version'))
 	replaceToken('$[kotlin]', project.property('kotlin_version'))
 
-	replaceToken('$[minecraft]', minecraft_version())
-	replaceToken('$[yarn]', project.property('yarn_mappings'))
-	replaceToken('$[loader]', project.property('loader_version'))
-	replaceToken('$[loom]', project.property('loom_version'))
-	replaceToken('$[fabric_version]', project.property('fabric_version'))
+	replaceToken('$[minecraft]', libs.versions.minecraft.get())
+	replaceToken('$[yarn]', libs.versions.quilt.mappings.get())
+	replaceToken('$[loader]', libs.versions.quilt.loader.get())
+	replaceToken('$[loom]', libs.versions.quilt.loom.get())
+	replaceToken('$[quilt]', libs.versions.quilted.fabric.api.get())
 }
 
 processResources {
@@ -151,11 +158,11 @@ processResources {
 			"desc"     : project.mod_desc,
 			"site"     : project.mod_site,
 			"src"      : project.mod_src,
-			"minecraft": minecraft_version(),
-			"fabric"   : project.fabric_version,
-			"loader"   : project.loader_version,
+			"minecraft": libs.versions.minecraft.get(),
+			"quilt"    : ver(libs.versions.quilted.fabric.api),
+			"loader"   : ver(libs.versions.quilt.loader),
 			"java"     : project.java_version,
-			"adapter"  : project.fabric_kotlin_version,
+			"adapter"  : "1.7.4+kotlin.${kotlin_version}",
 			"group"    : project.maven_group,
 			"license"  : project.license_type,
 		])
@@ -173,17 +180,13 @@ idea.project.settings {
 	}
 }
 
-String minecraft_version() {
-	return "$minecraft_major.$minecraft_minor.$minecraft_patch"
-}
-
-String minecraft_version_short() {
-	return "$minecraft_major.$minecraft_minor"
-}
-
 String expand_license(String old) {
 	old = old.replace('\$DEVELOPER', mod_author)
 	old = old.replace('\$LICENSE', license_type.toUpperCase())
 
 	return old
+}
+
+String ver(Provider<?> provider) {
+	return provider.get().split("-").first()
 }
